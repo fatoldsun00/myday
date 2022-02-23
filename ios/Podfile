@@ -12,6 +12,8 @@ target 'myday' do
     :hermes_enabled => false
   )
 
+  pod 'RNSensors', :path => '../node_modules/react-native-sensors'
+
   target 'mydayTests' do
     inherit! :complete
     # Pods for testing
