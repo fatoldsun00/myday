@@ -1,5 +1,6 @@
- import React, { useEffect } from 'react';
+ import React, { useEffect, useRef } from 'react';
  import {
+   Pressable,
    SafeAreaView,
    ScrollView,
    StatusBar,
@@ -17,49 +18,59 @@
 } from "react-native-sensors";
 import Sound from 'react-native-sound'
 import { map, filter } from "rxjs/operators";
-setUpdateIntervalForType(SensorTypes.accelerometer, 500); // defaults to 100ms
+import { NeuView } from 'react-native-neu-element';
 
  const Home = () => {
    const isDarkMode = useColorScheme() === 'dark';
- 
+  const subscription = useRef()
    useEffect(()=>{
-    const subscription = accelerometer//.subscribe((e)=>console.log(e))
-    .pipe(map(({ x, y, z }) => x + y + z), filter(speed => speed > 12)).subscribe((e)=>{
+    //const subscription = accelerometer.subscribe((e)=>console.log(e))
+    /*.pipe(map(({ x, y, z }) => x + y + z), filter(speed => speed > 12)).subscribe((e)=>{
      
       console.log(e)
-    })
+    })*/
    
-    
-    return subscription.unsubscribe;
+    return subscription.current?.unsubscribe;
    },[])
 
+   const startSensor = ()=>{
+    //subscription.current = accelerometer.subscribe((e)=>console.log(e))
+    setUpdateIntervalForType(SensorTypes.accelerometer, 1000); // defaults to 100ms
+
+    subscription.current = accelerometer
+    .pipe(map(({ x, y, z }) => Math.abs(x) + Math.abs(y) + Math.abs(z)), filter(speed => speed > 20))
+    .subscribe((e)=>{ whipSound.play()})
+   }
+
+   const stopSensor = ()=>{
+    subscription.current?.unsubscribe()
+   }
 
 
-// Enable playback in silence mode
-Sound.setCategory('Playback');
+  // Enable playback in silence mode
+  Sound.setCategory('Playback');
 
-// Load the sound file 'whoosh.mp3' from the app bundle
-// See notes below about preloading sounds within initialization code below.
-var whoosh = new Sound('whoosh.mp3', Sound.MAIN_BUNDLE, (error) => {
-  if (error) {
-    console.log('failed to load the sound', error);
-    return;
-  }
-  // loaded successfully
-  console.log('duration in seconds: ' + whoosh.getDuration() + 'number of channels: ' + whoosh.getNumberOfChannels());
-
-  // Play the sound with an onEnd callback
-  whoosh.play((success) => {
-    if (success) {
-      console.log('successfully finished playing');
-    } else {
-      console.log('playback failed due to audio decoding errors');
+  var whipSound = new Sound('whip.mp3', Sound.MAIN_BUNDLE, (error) => {
+    if (error) {
+      console.log('failed to load the sound', error);
+      return;
     }
+    // loaded successfully
+    console.log('duration in seconds: ' + whipSound.getDuration() + 'number of channels: ' + whipSound.getNumberOfChannels());
   });
-});
+
+  var fartSound = new Sound('fart.mp3', Sound.MAIN_BUNDLE, (error) => {
+    if (error) {
+      console.log('failed to load the sound', error);
+      return;
+    }
+    // loaded successfully
+    console.log('duration in seconds: ' + whipSound.getDuration() + 'number of channels: ' + whipSound.getNumberOfChannels());
+  });
 
    const backgroundStyle = {
      backgroundColor: isDarkMode ? 'black' : 'grey',
+     flex: 1
    };
  
    return ( 
@@ -68,11 +79,23 @@ var whoosh = new Sound('whoosh.mp3', Sound.MAIN_BUNDLE, (error) => {
        <ScrollView
          contentInsetAdjustmentBehavior="automatic"
          style={backgroundStyle}>
-         <View
-           style={{
-             backgroundColor: isDarkMode ? 'black' : 'white',
+         <View>
+           <Pressable style={styles.button} onPress={()=>{
+             whipSound.play()
            }}>
-           <Text style={{color:'red'}}>TTTTTTTT</Text>
+              <Text style={{color:'red'}}>Whip sound</Text>
+           </Pressable>
+           <Pressable style={styles.button} onPress={startSensor}>
+             <Text>Start accelerometer</Text>
+           </Pressable>
+           <Pressable style={styles.button} onPress={stopSensor}>
+             <Text>Stop accelerometer</Text>
+           </Pressable>
+           <NeuView color='#eef2f9' height={100} width={100} borderRadius={16} style={{marginBottom: 15}}>
+              <Pressable style={styles.neumorphButton} onPress={()=>{fartSound.play()}}>
+               <Text>Prout</Text>
+            </Pressable>
+          </NeuView>
          </View>
        </ScrollView>
      </SafeAreaView>
@@ -80,22 +103,17 @@ var whoosh = new Sound('whoosh.mp3', Sound.MAIN_BUNDLE, (error) => {
  };
  
  const styles = StyleSheet.create({
-   sectionContainer: {
-     marginTop: 32,
-     paddingHorizontal: 24,
+   button: {
+    borderWidth:1,
+    borderColor: 'red',
+    width:50,
+    height: 50
    },
-   sectionTitle: {
-     fontSize: 24,
-     fontWeight: '600',
-   },
-   sectionDescription: {
-     marginTop: 8,
-     fontSize: 18,
-     fontWeight: '400',
-   },
-   highlight: {
-     fontWeight: '700',
-   },
+   neumorphButton:{
+    width:50,
+    height: 50,
+    borderRadius:30
+   }
  });
  
  export default Home;
