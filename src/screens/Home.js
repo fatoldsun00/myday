@@ -18,7 +18,7 @@
 } from "react-native-sensors";
 import Sound from 'react-native-sound'
 import { map, filter } from "rxjs/operators";
-import { NeuView } from 'react-native-neu-element';
+import {StartListenAcceleration} from '@/components/StartListenAcceleration'
 
  const Home = () => {
    const isDarkMode = useColorScheme() === 'dark';
@@ -85,17 +85,16 @@ import { NeuView } from 'react-native-neu-element';
            }}>
               <Text style={{color:'red'}}>Whip sound</Text>
            </Pressable>
+           <StartListenAcceleration />
            <Pressable style={styles.button} onPress={startSensor}>
              <Text>Start accelerometer</Text>
            </Pressable>
            <Pressable style={styles.button} onPress={stopSensor}>
              <Text>Stop accelerometer</Text>
            </Pressable>
-           <NeuView color='#eef2f9' height={100} width={100} borderRadius={16} style={{marginBottom: 15}}>
               <Pressable style={styles.neumorphButton} onPress={()=>{fartSound.play()}}>
                <Text>Prout</Text>
             </Pressable>
-          </NeuView>
          </View>
        </ScrollView>
      </SafeAreaView>
