@@ -6,6 +6,9 @@
     "android": "react-native run-android",
     "ios": "react-native run-ios",
     "start": "react-native start",
+    "clean:android": "cd android && ./gradlew clean",
+    "clean:ios": "cd ios && rimraf Podfile.lock Pods",
+    "clean:metro": "react-native start --reset-cache",
     "test": "jest",
     "lint": "eslint ."
   },
